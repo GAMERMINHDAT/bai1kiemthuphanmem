@@ -1,11 +1,8 @@
-BÁO CÁO THỰC HÀNH
+Báo cáo thực hành chương 1
 Ứng dụng các công cụ kiểm thử phần mềm và mô hình ngôn ngữ lớn trong dự án nhóm
 1. Mục tiêu báo cáo
-
 Báo cáo này nhằm tổng hợp quá trình học tập, thực hành và áp dụng các công cụ kiểm thử phần mềm trong dự án nhóm. Sinh viên được trang bị kỹ năng:
-
 Sử dụng các công cụ kiểm thử phổ biến trong thực tế.
-
 Viết tài liệu, lập kế hoạch và báo cáo kiểm thử.
 
 Vận dụng công cụ vào dự án nhóm một cách độc lập, không phụ thuộc hoàn toàn vào nội dung lý thuyết.
@@ -262,3 +259,213 @@ OWASP ZAP
 SonarQube
 
 GitHub / Jira
+
+Báo cáo thực hành chương 2
+
+1. Cài đặt lớp StudentAnalyzer
+
+import java.util.List;
+
+public class StudentAnalyzer {
+
+    /**
+     * Phân tích điểm số và trả về số lượng học sinh đạt loại Giỏi.
+     * @param scores danh sách điểm số từ 0 đến 10
+     * @return số học sinh đạt loại Giỏi (>= 8.0)
+     */
+    public int countExcellentStudents(List<Double> scores) {
+        if (scores == null || scores.isEmpty()) {
+            return 0;
+        }
+
+        int count = 0;
+
+        for (Double score : scores) {
+            if (score == null) continue;
+
+            // Validate dữ liệu
+            if (score >= 0 && score <= 10) {
+                if (score >= 8.0) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Tính điểm trung bình hợp lệ (từ 0 đến 10)
+     * @param scores danh sách điểm
+     * @return điểm trung bình của các điểm hợp lệ
+     */
+    public double calculateValidAverage(List<Double> scores) {
+        if (scores == null || scores.isEmpty()) {
+            return 0;
+        }
+
+        double sum = 0;
+        int validCount = 0;
+
+        for (Double score : scores) {
+            if (score == null) continue;
+
+            if (score >= 0 && score <= 10) {
+                sum += score;
+                validCount++;
+            }
+        }
+
+        if (validCount == 0) {
+            return 0;
+        }
+
+        return sum / validCount;
+    }
+}
+
+ 2. Viết JUnit Test đầy đủ
+
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+public class StudentAnalyzerTest {
+
+    StudentAnalyzer analyzer = new StudentAnalyzer();
+
+    // =========================
+    // Test countExcellentStudents
+    // =========================
+
+    @Test
+    public void testCountExcellentStudents_NormalCase() {
+        List<Double> scores = Arrays.asList(9.0, 8.5, 7.0, 11.0, -1.0);
+        assertEquals(2, analyzer.countExcellentStudents(scores));
+    }
+
+    @Test
+    public void testCountExcellentStudents_AllValid() {
+        List<Double> scores = Arrays.asList(8.0, 8.2, 9.5, 10.0);
+        assertEquals(4, analyzer.countExcellentStudents(scores));
+    }
+
+    @Test
+    public void testCountExcellentStudents_EmptyList() {
+        assertEquals(0, analyzer.countExcellentStudents(Collections.emptyList()));
+    }
+
+    @Test
+    public void testCountExcellentStudents_BoundaryValues() {
+        List<Double> scores = Arrays.asList(0.0, 10.0, 7.9);
+        assertEquals(1, analyzer.countExcellentStudents(scores)); // chỉ có 10.0 >= 8
+    }
+
+    @Test
+    public void testCountExcellentStudents_InvalidValuesOnly() {
+        List<Double> scores = Arrays.asList(-5.0, 12.0, 20.0);
+        assertEquals(0, analyzer.countExcellentStudents(scores));
+    }
+
+    // =========================
+    // Test calculateValidAverage
+    // =========================
+
+    @Test
+    public void testCalculateValidAverage_NormalCase() {
+        List<Double> scores = Arrays.asList(9.0, 8.5, 7.0, 11.0, -1.0);
+        // (9.0 + 8.5 + 7.0) / 3 = 8.166...
+        assertEquals(8.17, analyzer.calculateValidAverage(scores), 0.01);
+    }
+
+    @Test
+    public void testCalculateValidAverage_AllValid() {
+        List<Double> scores = Arrays.asList(6.0, 8.0, 10.0);
+        assertEquals(8.0, analyzer.calculateValidAverage(scores), 0.01);
+    }
+
+    @Test
+    public void testCalculateValidAverage_EmptyList() {
+        assertEquals(0, analyzer.calculateValidAverage(Collections.emptyList()), 0.01);
+    }
+
+    @Test
+    public void testCalculateValidAverage_BoundaryValues() {
+        List<Double> scores = Arrays.asList(0.0, 10.0);
+        assertEquals(5.0, analyzer.calculateValidAverage(scores), 0.01);
+    }
+
+    @Test
+    public void testCalculateValidAverage_InvalidValuesOnly() {
+        List<Double> scores = Arrays.asList(-3.0, 15.0);
+        assertEquals(0, analyzer.calculateValidAverage(scores), 0.01);
+    }
+}
+
+
+ Bộ test này bao phủ:
+
+- Trường hợp bình thường
+
+- Biên (rỗng, 0, 10)
+
+- Ngoại lệ (âm, >10)
+
+3. Cấu trúc thư mục đề xuất
+unit-test/
+│
+├── src/
+│   └── StudentAnalyzer.java
+│
+├── test/
+│   └── StudentAnalyzerTest.java
+│
+├── README.md
+└── .gitignore
+
+ 4. Mẫu README.md
+
+Bạn có thể copy chỉnh sửa:
+
+# Student Analyzer - Unit Test with JUnit
+
+##  Mục tiêu
+- Viết chương trình Java phân tích điểm học sinh.
+- Thực hành viết kiểm thử đơn vị bằng JUnit.
+- Thực hành GitHub Issues và Commit workflow.
+
+##  Chức năng
+### 1. countExcellentStudents(List<Double> scores)
+- Đếm số học sinh có điểm >= 8.0.
+- Bỏ qua điểm < 0 hoặc > 10.
+- Nếu danh sách rỗng → trả về 0.
+
+### 2. calculateValidAverage(List<Double> scores)
+- Tính trung bình các điểm hợp lệ (0–10).
+- Nếu không có điểm hợp lệ → trả về 0.
+
+##  Cấu trúc dự án
+
+
+unit-test/
+├── src/
+├── test/
+└── README.md
+
+
+##  Cách chạy chương trình
+- Mở project bằng IDE (IntelliJ / Eclipse).
+- Đảm bảo đã thêm thư viện JUnit 5.
+- Run file StudentAnalyzerTest.java.
+
+##  Kiểm thử
+- Kiểm thử các trường hợp:
+  - Bình thường
+  - Biên
+  - Ngoại lệ
+
+##  Sinh viên thực hiện
+- Họ tên:Nguyễn Minh Đạt
+- MSSV:BIT230085
+- Lớp:23IT5
